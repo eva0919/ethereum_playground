@@ -52,28 +52,25 @@ router.delete("/miner", function(req, res) {
 });
 
 router.post("/transaction", function(req, res) {
-  var unlockInfo = web3.eth.personal
-    .unlockAccount(
-      "0x755859a2174c06b0f26131c520f261b5d34b9724",
-      "mypassword",
-      1000
-    )
+  console.log(req.body);
+  var params = req.body;
+  web3.eth.personal
+    .unlockAccount(params.from, "mypassword", 1000)
     .then(function(result) {
       var tx = {
-        from: "0x755859a2174c06b0f26131c520f261b5d34b9724",
-        to: "0x000feb4215d2f6f987eb95e4034965ab25d700c3",
-        value: web3.utils.toWei("1.23", "ether")
+        from: params.from,
+        to: params.to,
+        value: web3.utils.toWei(params.value, "ether")
       };
       return web3.eth.personal.sendTransaction(tx, "mypassword");
     })
     .then(function(transactionResult) {
-      console.log("transaction");
       console.log(transactionResult);
     })
     .catch(function(error) {
       console.log(error);
     });
-  res.json(unlockInfo);
+  res.json(req.body);
 });
 
 module.exports = router;

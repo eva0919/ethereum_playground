@@ -6,6 +6,7 @@ var routers = require("./src/routers.js");
 
 var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 var limiter = new RateLimit({
   windowMs: 10 * 1000,
