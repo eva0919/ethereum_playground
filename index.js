@@ -1,45 +1,22 @@
 var express = require("express");
-var Web3 = require("web3");
-var axios = require("axios");
+var RateLimit = require("express-rate-limit");
+var bodyParser = require("body-parser");
+
+var routers = require("./src/routers.js");
 
 var app = express();
-var web3 = new Web3();
-web3.setProvider(new web3.providers.HttpProvider("http://127.0.0.1:8545"));
+app.use(bodyParser.urlencoded({ extended: false }));
+
+var limiter = new RateLimit({
+  windowMs: 10 * 1000,
+  max: 10, // limit each IP to 100 requests per windowMs
+  delayMs: 0,
+  message: "Too many requests from this IP, please try again after an hour"
+});
+app.use(limiter);
+app.use("/", routers);
 
 app.set("port", process.env.PORT || 3000);
-
-app.get("/node", function(req, res) {
-  var params = { jsonrpc: "2.0", method: "admin_nodeInfo", id: 67 };
-  axios.post("http://localhost:8545", params).then(function(response) {
-    console.log(response);
-    res.json(response.data.result);
-  });
-});
-
-app.get("/block/:block_number", function(req, res) {
-  var block_info = web3.eth.getBlock(req.params.block_number, function(
-    error,
-    result
-  ) {
-    if (!error) {
-      console.log(result);
-      res.json(result);
-    }
-  });
-});
-
-app.get("/transaction/:transation_hash", function(req, res) {
-  var transation_info = web3.eth.getTransaction(
-    req.params.transation_hash,
-    function(error, result) {
-      if (!error) {
-        console.log(result);
-        res.json(result);
-      }
-    }
-  );
-});
-
 app.listen(app.get("port"), function() {
-  console.log("Example app listening on port 3000!");
+  console.log("Server listening on port 3000!");
 });
