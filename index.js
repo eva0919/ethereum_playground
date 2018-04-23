@@ -10,14 +10,13 @@ app.use(bodyParser.json());
 
 var limiter = new RateLimit({
   windowMs: 10 * 1000,
-  max: 10, // limit each IP to 100 requests per windowMs
+  max: 10,
   delayMs: 0,
   message: "Too many requests from this IP, please try again after an hour"
 });
 app.use(limiter);
 app.use("/", routers);
-
 app.set("port", process.env.PORT || 3000);
 app.listen(app.get("port"), function() {
-  console.log("Server listening on port 3000!");
+  console.log(`Server listening on port ${app.get("port")}!`);
 });

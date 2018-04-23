@@ -36,7 +36,7 @@ router.get("/node", checkEthMiddle, function(req, res) {
   web3.admin
     .nodeInfo()
     .then(function(response) {
-      var returnResponse = ResponseModel.gen(response.result);
+      var returnResponse = ResponseModel.gen({ data: response.result });
       res.json(returnResponse);
     })
     .catch(e => handleErrorResponse(res, e));
@@ -68,14 +68,10 @@ router.get("/transaction/:transation_hash", checkEthMiddle, function(req, res) {
   web3.eth
     .getTransaction(req.params.transation_hash)
     .then(result => {
-      var resultObject = {};
-      if (result) {
-        resultObject["isFound"] = true;
-        resultObject["data"] = result;
-      } else {
-        resultObject["isFound"] = false;
-        resultObject["data"] = null;
-      }
+      var resultObject = {
+        successful: result ? true : false,
+        data: result ? result : null
+      };
       var returnResponse = ResponseModel.gen(resultObject);
       res.json(returnResponse);
     })
@@ -119,7 +115,9 @@ router.post("/transaction", checkEthMiddle, function(req, res) {
       })
       .then(function(transactionResult) {
         var returnObject = {
-          transation_hash: transactionResult
+          data: {
+            transation_hash: transactionResult
+          }
         };
         res.status(202).json(ResponseModel.gen(returnObject));
       })
